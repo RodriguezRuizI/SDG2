@@ -12,8 +12,7 @@
 #include <stdlib.h>
 #include <wiringPi.h>
 #include <softTone.h>
-
-#include "../src/kbhit.h" // Para poder detectar teclas pulsadas sin bloqueo y leer las teclas pulsadas
+#include "kbhit.h" // Para poder detectar teclas pulsadas sin bloqueo y leer las teclas pulsadas
 
 extern int frecuenciaDespacito[];
 extern int tiempoDespacito[];

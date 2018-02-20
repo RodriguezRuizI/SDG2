@@ -1,6 +1,5 @@
 
-#include "../src/piMusicBox_1.h"
-
+#include "piMusicBox_1.h"
 #include <wiringPi.h>
 #include <softTone.h>
 #include "string.h"
@@ -39,7 +38,7 @@ int InicializaMelodia (TipoMelodia *melodia, char *nombre, int *array_frecuencia
 
 	for(i=0; i< MAX_NUM_NOTAS ; i++){
 
-			melodia->frecuencias[i]=*(array_frecuencias+i);
+			melodia->frecuencias[i]=array_frecuencias[i];
 	}
 	for(i=0; i< MAX_NUM_NOTAS ; i++){
 			melodia->duraciones[i]=array_duraciones[i];
@@ -70,10 +69,10 @@ void InicializaPlayer (TipoPlayer *p_player){
 	p_player->posicion_nota_actual = 0;
 	p_player->frecuencia_nota_actual=p_player->melodia->frecuencias[0];
 	p_player->duracion_nota_actual=p_player->melodia->duraciones[0];
-	printf("Sistema Iniciado");
-	printf("\n Nota actual: %i \n", p_player->posicion_nota_actual);
-	printf("\n Duración de la nota actual: %i \n", p_player->duracion_nota_actual);
-	printf("\n Frecuencia de la nota actual: %i \n", p_player->frecuencia_nota_actual);
+	printf("\n Sistema Iniciado \n");
+//	printf("\n Nota actual: %i \n", p_player->posicion_nota_actual);
+//	printf("\n Duración de la nota actual: %i \n", p_player->duracion_nota_actual);
+//	printf("\n Frecuencia de la nota actual: %i \n", p_player->frecuencia_nota_actual);
 	softToneWrite(GPIO_PIN, p_player->frecuencia_nota_actual);
 }
 void ActualizaPlayer (TipoPlayer *p_player){
@@ -104,7 +103,7 @@ int main ()
 
 			// Interpretacion de las pulsaciones para cada posible estado del sistema
 			if( sistema.estado == WAIT_START ) { // Cualquier pulsacion da comienzo a la reproduccion...
-				InicializaMelodia(sistema.player.melodia,"Despacito",frecuenciaDespacito,tiempoDespacito,10);
+				InicializaMelodia(sistema.player.melodia,"GoT",frecuenciaGOT,tiempoGOT,518);
 				InicializaPlayer(&sistema.player);
 				sistema.estado = WAIT_PUSH;
 			}
@@ -115,31 +114,23 @@ int main ()
 			else { // Si estamos jugando...
 				switch(sistema.teclaPulsada) {
 					case 's':
-//						if(sistema.player.posicion_nota_actual<0 || sistema.player.posicion_nota_actual == MAX_NUM_NOTAS){
-//							InicializaPlayer(&sistema.player);
-//
-//						}else if (sistema.player.posicion_nota_actual==0) {
-//							printf("\n Nota actual: %i \n", sistema.player.posicion_nota_actual);
-//							printf("\n Duración de la nota actual: %i \n", sistema.player.duracion_nota_actual);
-//							printf("\n Frecuencia de la nota actual: %i \n", sistema.player.frecuencia_nota_actual);
-//						}
-//						else{
-							ActualizaPlayer(&sistema.player);
 							printf("\n Nota actual: %i \n", sistema.player.posicion_nota_actual);
 							printf("\n Duración de la nota actual: %i \n", sistema.player.duracion_nota_actual);
 							printf("\n Frecuencia de la nota actual: %i \n", sistema.player.frecuencia_nota_actual);
-//						}
 							if(sistema.player.posicion_nota_actual == sistema.player.melodia->num_notas-1){
 								sistema.estado = WAIT_END;
 							}
+							ActualizaPlayer(&sistema.player);
+
 						break;
 
 					case 't':
+						printf("\n Sistema pausado \n");
 						StopPlayer(&sistema.player);
-
 						break;
 
 					case 'q':
+						printf("\n Quitamos la melodia \n");
 						exit(0);
 						break;
 

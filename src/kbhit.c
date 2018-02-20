@@ -1,11 +1,9 @@
-#include "../src/kbhit.h"
-
+#include "kbhit.h"
 #include <sys/select.h>
 #include <stdlib.h> // para poder usar NULL
 #include <stdio.h> // para poder usar getc, printf...
 //#define DEBUG
-
-#include "../src/dprintf.h" // para poder usar DPRINTF
+#include "dprintf.h" // para poder usar DPRINTF
 
 static char ch2=0;
   
