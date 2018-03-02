@@ -38,5 +38,5 @@ int CompruebaFinalMelodia(fsm_t* this);
 void InicializaPlayer(fsm_t* this);
 void StopPlayer(fsm_t* this);
 void ComienzaNuevaNota(fsm_t* this);
-void ActulizaPlayer(fsm_t* this);
+void ActualizaPlayer(fsm_t* this);
 void FinalMelodia(fsm_t* this);

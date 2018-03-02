@@ -48,16 +48,6 @@ int InicializaMelodia (TipoMelodia *melodia, char *nombre, int *array_frecuencia
 	return melodia->num_notas;
 }
 
-//------------------------------------------------------
-// FUNCIONES DE INICIALIZACION
-//------------------------------------------------------
-
-// int systemSetup (void): procedimiento de configuracion del sistema.
-// RealizarÃ¡, entra otras, todas las operaciones necesarias para:
-// configurar el uso de posibles librerÃ­as (e.g. Wiring Pi),
-// configurar las interrupciones externas asociadas a los pines GPIO,
-// configurar las interrupciones periÃ³dicas y sus correspondientes temporizadores,
-// crear, si fuese necesario, los threads adicionales que pueda requerir el sistema
 
 int systemSetup (void) {
 	wiringPiSetupGpio();
@@ -65,22 +55,7 @@ int systemSetup (void) {
 	return 0;
 }
 
-void InicializaPlayer (TipoPlayer *p_player){
-	p_player->posicion_nota_actual = 0;
-	p_player->frecuencia_nota_actual=p_player->melodia->frecuencias[0];
-	p_player->duracion_nota_actual=p_player->melodia->duraciones[0];
-	printf("\n Sistema Iniciado \n");
-	softToneWrite(GPIO_PIN, p_player->frecuencia_nota_actual);
-}
-void ActualizaPlayer (TipoPlayer *p_player){
-	p_player->posicion_nota_actual++;
-	p_player->frecuencia_nota_actual = p_player->melodia->frecuencias[p_player->posicion_nota_actual];
-	p_player->duracion_nota_actual = p_player->melodia->duraciones[p_player->posicion_nota_actual];
-	softToneWrite(GPIO_PIN, p_player->frecuencia_nota_actual);
-}
-void StopPlayer (TipoPlayer *p_player){
-	softToneWrite (GPIO_PIN, 0);
-}
+
 int main ()
 {
 	TipoSistema sistema;
@@ -98,32 +73,22 @@ int main ()
 
 			printf("\n[KBHIT][%c]\n", sistema.teclaPulsada);
 
-			// Interpretacion de las pulsaciones para cada posible estado del sistema
-			if( sistema.estado == WAIT_START ) { // Cualquier pulsacion da comienzo a la reproduccion...
-				InicializaMelodia(sistema.player.melodia,"GoT",frecuenciaGOT,tiempoGOT,518);
-				InicializaPlayer(&sistema.player);
-				sistema.estado = WAIT_PUSH;
-			}
-			else if( sistema.estado == WAIT_END ) { // Cualquier nos devuelve al estado inicial...
-				StopPlayer(&sistema.player);
-				sistema.estado = WAIT_START;
-			}
-			else { // Si estamos jugando...
+				// Si estamos jugando...
 				switch(sistema.teclaPulsada) {
 					case 's':
-							printf("\n Nota actual: %i \n", sistema.player.posicion_nota_actual);
-							printf("\n Duración de la nota actual: %i \n", sistema.player.duracion_nota_actual);
-							printf("\n Frecuencia de la nota actual: %i \n", sistema.player.frecuencia_nota_actual);
-							if(sistema.player.posicion_nota_actual == sistema.player.melodia->num_notas-1){
-								sistema.estado = WAIT_END;
-							}
-							ActualizaPlayer(&sistema.player);
+						printf("\n Nota actual: %i \n", sistema.player.posicion_nota_actual);
+						printf("\n Duración de la nota actual: %i \n", sistema.player.duracion_nota_actual);
+						printf("\n Frecuencia de la nota actual: %i \n", sistema.player.frecuencia_nota_actual);
+							//if(sistema.player.posicion_nota_actual == sistema.player.melodia->num_notas-1){
+								//sistema.estado = WAIT_END;
+							//}
+						flags = FLAG_PLAYER_START;
 
 						break;
 
 					case 't':
 						printf("\n Sistema pausado \n");
-						StopPlayer(&sistema.player);
+						flags = FLAG_PLAYER_STOP;
 						break;
 
 					case 'q':
@@ -135,7 +100,6 @@ int main ()
 						printf("INVALID KEY!!!\n");
 						break;
 				}
-			}
 		}
 	}
 }

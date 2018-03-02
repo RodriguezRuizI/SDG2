@@ -16,6 +16,8 @@
 #include <string.h>
 #include "estados.h"
 
+#define GPIO_PIN 18
+
 extern int frecuenciaDespacito[];
 extern int tiempoDespacito[];
 extern int frecuenciaGOT[];
@@ -25,11 +27,11 @@ extern int tiempoTetris[];
 extern int frecuenciaStarwars[];
 extern int tiempoStarwars[];
 
-typedef enum {
+typedef enum{
 	WAIT_START = 0,
-	WAIT_PUSH = 1,
+	WAIT_NEXT = 1,
 	WAIT_END = 2
-} TipoEstadosSistema;
+}TipoEstadosSistema;
 
 #define MAX_NUM_TARJETAS	5
 #define MAX_NUM_NOTAS 		600
@@ -87,8 +89,6 @@ typedef struct {
 
 int InicializaMelodia (TipoMelodia *melodia, char *nombre, int *array_frecuencias, int *array_duraciones, int num_notas);
 int systemSetup (void);
-void InicializaPlayer (TipoPlayer *p_player);
-void ActualizaPlayer (TipoPlayer *p_player);
-void StopPlayer (TipoPlayer *p_player);
+
 
 #endif /* PIMUSICBOX_2_H_ */
