@@ -10,48 +10,47 @@
 #include "string.h"
 #include "estados.h"
 #include "piMusicBox_2.h"
-volatile int flags = 0;
 
 //TABLA DE TRANSICIONES
 fsm_trans_t transition_table[] = {
-		{WAIT_START, CompruebaPlayerStart,WAIT_NEXT,InicializaPlayer},
-		{WAIT_NEXT,CompruebaNuevaNota,WAIT_END,ActualizaPlayer},
-		{WAIT_NEXT,CompruebaPlayerStop,WAIT_START,StopPlayer},
-		{WAIT_END,CompruebaNuevaNota,WAIT_NEXT,ComienzaNuevaNota},
-		{WAIT_END,CompruebaFinalMelodia,WAIT_START,FinalMelodia},
+		{WAIT_START, compruebaPlayerStart,WAIT_NEXT,inicializaPlayer},
+		{WAIT_NEXT,compruebaNuevaNota,WAIT_END,actualizaPlayer},
+		{WAIT_NEXT,compruebaPlayerStop,WAIT_START,stopPlayer},
+		{WAIT_END,compruebaNuevaNota,WAIT_NEXT,comienzaNuevaNota},
+		{WAIT_END,compruebaFinalMelodia,WAIT_START,finalMelodia},
 		{-1, NULL, -1, NULL }
 };
 
 //Funciones de entrada
-int CompruebaPlayerStart(fsm_t* this){
+int compruebaPlayerStart(fsm_t* this){
 	if(flags & FLAG_PLAYER_START){
 	return 0;
 	}
 	return 1;
 }
 
-int CompruebaPlayerStop(fsm_t* this){
+int compruebaPlayerStop(fsm_t* this){
 	if(flags & FLAG_PLAYER_STOP){
 		return 0;
 	}
 	return 1;
 }
 
-int CompruebaNuevaNota(fsm_t* this){
-	if(flags& FLAG_PLAYER_END){
+int compruebaNuevaNota(fsm_t* this){
+	if(flags & FLAG_PLAYER_END){
 		return 0;
 	}
 	return 1;
 }
 
-int CompruebaNotaTimeout(fsm_t* this){
+int compruebaNotaTimeout(fsm_t* this){
 	if(flags & FLAG_NOTA_TIMEOUT){
 			return 0;
 		}
 	return 1;
 }
 
-int CompruebaFinalMelodia(fsm_t* this){
+int compruebaFinalMelodia(fsm_t* this){
 	if(flags & FLAG_PLAYER_END){
 		return 0;
 	}
@@ -59,7 +58,7 @@ int CompruebaFinalMelodia(fsm_t* this){
 }
 
 //Funciones de salida
-void InicializaPlayer(fsm_t* this){
+void inicializaPlayer(fsm_t* this){
 TipoSistema* new = this->user_data;
 new->player.posicion_nota_actual = 0;
 new->player.frecuencia_nota_actual = new->player.melodia->frecuencias[0];
@@ -68,21 +67,21 @@ printf("\n Sistema Iniciado \n");
 softToneWrite(GPIO_PIN, new->player.frecuencia_nota_actual);
 }
 
-void StopPlayer(fsm_t* this){
+void stopPlayer(fsm_t* this){
 	softToneWrite (GPIO_PIN, 0);
 }
-void ComienzaNuevaNota(fsm_t* this){
+void comienzaNuevaNota(fsm_t* this){
 	TipoSistema* new = this->user_data;
 	softToneWrite(GPIO_PIN, new->player.duracion_nota_actual);
 }
-void ActualizaPlayer(fsm_t* this){
+void actualizaPlayer(fsm_t* this){
 	TipoSistema* new = this->user_data;
 	new->player.posicion_nota_actual ++;
 	new->player.frecuencia_nota_actual = new->player.melodia->frecuencias[new->player.posicion_nota_actual];
 	new->player.duracion_nota_actual = new->player.melodia->duraciones[new->player.posicion_nota_actual];
 }
 
-void FinalMelodia(fsm_t* this){
+void finalMelodia(fsm_t* this){
 	TipoSistema* new = this->user_data;
 	flags = 0xFF;
 		if(new->player.posicion_nota_actual	==	new->player.melodia->num_notas-1){

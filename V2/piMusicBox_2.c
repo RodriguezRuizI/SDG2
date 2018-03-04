@@ -3,7 +3,10 @@
 #include <wiringPi.h>
 #include <softTone.h>
 #include "string.h"
+#include "estados.h"
+
 #define GPIO_PIN 18
+extern fsm_trans_t transition_table[];
 
 int frecuenciaDespacito[160] = {0,1175,1109,988,740,740,740,740,740,740,988,988,988,988,880,988,784,0,784,784,784,784,784,988,988,988,988,1109,1175,880,0,880,880,880,880,880,1175,1175,1175,1175,1318,1318,1109,0,1175,1109,988,740,740,740,740,740,740,988,988,988,988,880,988,784,0,784,784,784,784,784,988,988,988,988,1109,1175,880,0,880,880,880,880,880,1175,1175,1175,1175,1318,1318,1109,0,1480,1318,1480,1318,1480,1318,1480,1318,1480,1318,1480,1568,1568,1175,0,1175,1568,1568,1568,0,1568,1760,1568,1480,0,1480,1480,1480,1760,1568,1480,1318,659,659,659,659,659,659,659,659,554,587,1480,1318,1480,1318,1480,1318,1480,1318,1480,1318,1480,1568,1568,1175,0,1175,1568,1568,1568,1568,1760,1568,1480,0,1480,1480,1480,1760,1568,1480,1318};
 int tiempoDespacito[160] = {1200,600,600,300,300,150,150,150,150,150,150,150,150,300,150,300,343,112,150,150,150,150,150,150,150,150,300,150,300,300,150,150,150,150,150,150,150,150,150,300,150,300,800,300,600,600,300,300,150,150,150,150,150,150,150,150,300,150,300,343,112,150,150,150,150,150,150,150,150,300,150,300,300,150,150,150,150,150,150,150,150,150,300,150,300,450,1800,150,150,150,150,300,150,300,150,150,150,300,150,300,450,450,300,150,150,225,75,150,150,300,450,800,150,150,300,150,150,300,450,150,150,150,150,150,150,150,150,300,300,150,150,150,150,150,150,450,150,150,150,300,150,300,450,450,300,150,150,150,300,150,300,450,800,150,150,300,150,150,300,450};
@@ -55,18 +58,16 @@ int systemSetup (void) {
 	return 0;
 }
 
+void delay_until (unsigned int next) {
+	unsigned int now = millis();
 
-int main ()
-{
+	if (next > now) {
+		delay (next - now);
+    }
+}
+
+void pulsaciones(){
 	TipoSistema sistema;
-	TipoMelodia melodia;
-	sistema.player.melodia = &melodia;
-	sistema.estado = WAIT_START;
-
-	systemSetup();
-	// Configuracion e inicializacion del sistema
-	// A completar por el alumno...
-
 	while (1) {
 		if(kbhit()) { // Funcion que detecta si se ha producido pulsacion de tecla alguna
 			sistema.teclaPulsada = kbread(); // Funcion que devuelve la tecla pulsada
@@ -79,9 +80,6 @@ int main ()
 						printf("\n Nota actual: %i \n", sistema.player.posicion_nota_actual);
 						printf("\n Duración de la nota actual: %i \n", sistema.player.duracion_nota_actual);
 						printf("\n Frecuencia de la nota actual: %i \n", sistema.player.frecuencia_nota_actual);
-							//if(sistema.player.posicion_nota_actual == sistema.player.melodia->num_notas-1){
-								//sistema.estado = WAIT_END;
-							//}
 						flags = FLAG_PLAYER_START;
 
 						break;
@@ -102,4 +100,22 @@ int main ()
 				}
 		}
 	}
+}
+int main ()
+{
+	unsigned int next;
+	TipoSistema sistema;
+	TipoMelodia melodia;
+	sistema.player.melodia = &melodia;
+	systemSetup();
+	pulsaciones();
+	InicializaMelodia(sistema.player.melodia, "GOT", frecuenciaGOT, tiempoGOT, 518);
+	fsm_t* aux_fsm = fsm_new(WAIT_START, transition_table, &sistema);
+	next = millis();
+	while (1) {
+		fsm_fire (aux_fsm);
+		next += CLK_MS;
+		delay_until (next);
+	}
+	fsm_destroy (aux_fsm);
 }

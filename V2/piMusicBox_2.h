@@ -15,8 +15,10 @@
 #include "kbhit.h" // Para poder detectar teclas pulsadas sin bloqueo y leer las teclas pulsadas
 #include <string.h>
 #include "estados.h"
+#include <stdint.h>
 
 #define GPIO_PIN 18
+#define CLK_MS 10
 
 extern int frecuenciaDespacito[];
 extern int tiempoDespacito[];
@@ -82,13 +84,15 @@ typedef struct {
 } TipoSistema;
 
 // FLAGS DEL SISTEMA
-#define FLAG_PLAYER_START 0x01
-#define FLAG_PLAYER_STOP 0x02
-#define FLAG_PLAYER_END 0x03
-#define FLAG_NOTA_TIMEOUT 0x04
+#define FLAG_PLAYER_START 1
+#define FLAG_PLAYER_STOP 2
+#define FLAG_PLAYER_END 3
+#define FLAG_NOTA_TIMEOUT 4
 
 int InicializaMelodia (TipoMelodia *melodia, char *nombre, int *array_frecuencias, int *array_duraciones, int num_notas);
 int systemSetup (void);
+void delay_until (unsigned int next);
 
+uint8_t flags;
 
 #endif /* PIMUSICBOX_2_H_ */

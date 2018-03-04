@@ -28,15 +28,15 @@
 
 
 //Funciones de entrada
-int CompruebaPlayerStart(fsm_t* this);
-int CompruebaPlayerStop(fsm_t* this);
-int CompruebaNuevaNota(fsm_t* this);
-int CompruebaNotaTimeout(fsm_t* this);
-int CompruebaFinalMelodia(fsm_t* this);
+int compruebaPlayerStart(fsm_t* this);
+int compruebaPlayerStop(fsm_t* this);
+int compruebaNuevaNota(fsm_t* this);
+int compruebaNotaTimeout(fsm_t* this);
+int compruebaFinalMelodia(fsm_t* this);
 
 //Funciones de salida
-void InicializaPlayer(fsm_t* this);
-void StopPlayer(fsm_t* this);
-void ComienzaNuevaNota(fsm_t* this);
-void ActualizaPlayer(fsm_t* this);
-void FinalMelodia(fsm_t* this);
+void inicializaPlayer(fsm_t* this);
+void stopPlayer(fsm_t* this);
+void comienzaNuevaNota(fsm_t* this);
+void actualizaPlayer(fsm_t* this);
+void finalMelodia(fsm_t* this);
