@@ -20,7 +20,7 @@ volatile int flags=0;
 //TABLA DE TRANSICIONES
 fsm_trans_t transition_table[] = {
 		{WAIT_START, compruebaPlayerStart,WAIT_NEXT,inicializaPlayer},
-		{WAIT_NEXT,compruebaNuevaNota,WAIT_END,actualizaPlayer},
+		{WAIT_NEXT,compruebaNotaTimeout,WAIT_END,actualizaPlayer},
 		{WAIT_NEXT,compruebaPlayerStop,WAIT_START,stopPlayer},
 		{WAIT_END,compruebaNuevaNota,WAIT_NEXT,comienzaNuevaNota},
 		{WAIT_END,compruebaFinalMelodia,WAIT_START,finalMelodia},
@@ -67,7 +67,7 @@ int compruebaNuevaNota(fsm_t* this){
 		piLock (FLAGS_KEY);
 		result = (flags & FLAG_PLAYER_END);
 		piUnlock (FLAGS_KEY);
-		return !result; //
+		return !result;
 }
 
 int compruebaNotaTimeout(fsm_t* this){
@@ -95,10 +95,11 @@ void inicializaPlayer(fsm_t* this){
 	new->posicion_nota_actual = 0;
 	new->frecuencia_nota_actual = new->melodia->frecuencias[0];
 	new->duracion_nota_actual = new->melodia->duraciones[0];
-	//timer = tmr_new();
 	softToneWrite(GPIO_PIN, new->frecuencia_nota_actual);
 	tmr_startms(new->myTimer, new->duracion_nota_actual);
-
+	if(flags & FLAG_PLAYER_STOP){
+		flags &= ~FLAG_PLAYER_STOP;
+	}
 }
 
 void stopPlayer(fsm_t* this){
@@ -119,21 +120,26 @@ void comienzaNuevaNota(fsm_t* this){
 	printf("\n Frecuencia de la nota actual: %i \n", new->frecuencia_nota_actual);
 	tmr_startms(new->myTimer,new->duracion_nota_actual);
 }
+
 void actualizaPlayer(fsm_t* this){
 	TipoPlayer* new;
 	new= (TipoPlayer*) (this->user_data);
+	flags |= FLAG_NOTA_TIMEOUT;
+	tmr_stop(new->myTimer);
+	if((flags & FLAG_PLAYER_END) == 0){
 	new->posicion_nota_actual ++;
 	new->frecuencia_nota_actual = new->melodia->frecuencias[new->posicion_nota_actual];
 	new->duracion_nota_actual = new->melodia->duraciones[new->posicion_nota_actual];
-	tmr_stop(new->myTimer);
-	flags = FLAG_PLAYER_END;
+	}else{
+	flags |= FLAG_PLAYER_END;
+	}
 }
 
 void finalMelodia(fsm_t* this){
 	TipoPlayer* new;
 	new= (TipoPlayer*) (this->user_data);
 	if(new->posicion_nota_actual ==	new->melodia->num_notas-1){
-		flags |= FLAG_PLAYER_END;
+		flags &=  ~FLAG_PLAYER_START;
 		tmr_stop(new->myTimer);
 		printf("\n Melodia acabada \n");
 	}
