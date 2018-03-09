@@ -5,7 +5,7 @@
 #include "estados.h"
 #include "piMusicBox_3.h"
 #include "tmr.h"
-
+#include <stdio.h>
 extern fsm_trans_t transition_table[];
 extern int flags;
 
@@ -17,6 +17,23 @@ int frecuenciaTetris[55] = {1319,988,1047,1175,1047,988,880,880,1047,1319,1175,1
 int tiempoTetris[55] = {450,225,225,450,225,225,450,225,225,450,225,225,450,225,225,450,450,450,450,450,675,450,225,450,225,225,675,225,450,225,225,450,225,225,450,450,450,450,450,450,900,900,900,900,900,900,1800,900,900,900,900,450,450,900,1800};
 int frecuenciaStarwars[59] = {523,0,523,0,523,0,698,0,1046,0,0,880,0,784,0,1397,0,523,0,1760,0,0,880,0,784,0,1397,0,523,0,1760,0,0,880,0,784,0,1397,0,523,0,1760,0,0,880,0,1760,0,0,784,0,523,0,0,523,0,0,523,0};
 int tiempoStarwars[59] = {134,134,134,134,134,134,536,134,536,134,134,134,134,134,134,536,134,402,134,134,429,357,134,134,134,134,536,134,402,134,134,429,357,134,134,134,134,536,134,402,134,134,429,357,134,134,134,429,357,1071,268,67,67,268,67,67,67,67,67};
+
+int InicializaMelodia (TipoMelodia *melodia, char *nombre, int *array_frecuencias, int *array_duraciones, int num_notas) {
+	int i=0;
+
+	strcpy(melodia->nombre, nombre);
+
+	for(i=0; i< MAX_NUM_NOTAS ; i++){
+
+			melodia->frecuencias[i]=array_frecuencias[i];
+	}
+	for(i=0; i< MAX_NUM_NOTAS ; i++){
+			melodia->duraciones[i]=array_duraciones[i];
+		}
+	melodia->num_notas=num_notas;
+
+	return melodia->num_notas;
+}
 
 void fsm_setup(fsm_t* music_fsm) {
 	piLock (FLAGS_KEY);
@@ -32,13 +49,13 @@ int systemSetup (void) {
 	return 0;
 }
 
-//void delay_until (unsigned int next) {
-//	unsigned int now = millis();
-//
-//	if (next > now) {
-//		delay (next - now);
-//    }
-//}
+void delay_until (unsigned int next) {
+	unsigned int now = millis();
+
+	if (next > now) {
+		delay (next - now);
+    }
+}
 
 void pulsaciones(){
 	TipoSistema sistema;
@@ -80,24 +97,26 @@ void pulsaciones(){
 	}
 }
 
-
 int main (){
+	TipoSistema sistema;
+	TipoMelodia melodia;
+	sistema.player.melodia = &melodia;
 	tmr_t* aux_tmr = tmr_new(pulsaciones);
-	//unsigned int next;
+	sistema.player.myTimer = (aux_tmr);
 
-	fsm_t* aux_fsm = fsm_new(WAIT_START, transition_table, aux_tmr);
+	unsigned int next;
+
+	fsm_t* aux_fsm = fsm_new(WAIT_START, transition_table, &(sistema.player));
 	systemSetup();
-
+	InicializaMelodia(sistema.player.melodia, "GOT", frecuenciaGOT, tiempoGOT, 518);
 	fsm_setup(aux_fsm);
 
-	tmr_startms(aux_tmr, CLK_FMS);
-
-	//next = millis();
+	next = millis();
 	while (1) {
 		flags = 0x01;
 		fsm_fire (aux_fsm);
-//		next += CLK_FMS;
-//		delay_until (next);
+		next += CLK_FMS;
+		delay_until (next);
 	}
 	fsm_destroy (aux_fsm);
 	tmr_destroy(aux_tmr);

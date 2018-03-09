@@ -11,7 +11,7 @@
 #include "estados.h"
 #include "piMusicBox_3.h"
 #include "tmr.h"
-
+#include <stdio.h>
 #include <stdlib.h>
 
 int flags=0;
@@ -27,22 +27,6 @@ fsm_trans_t transition_table[] = {
 		{-1, NULL, -1, NULL }
 };
 
-int InicializaMelodia (TipoMelodia *melodia, char *nombre, int *array_frecuencias, int *array_duraciones, int num_notas) {
-	int i=0;
-
-	strcpy(melodia->nombre, nombre);
-
-	for(i=0; i< MAX_NUM_NOTAS ; i++){
-
-			melodia->frecuencias[i]=array_frecuencias[i];
-	}
-	for(i=0; i< MAX_NUM_NOTAS ; i++){
-			melodia->duraciones[i]=array_duraciones[i];
-		}
-	melodia->num_notas=num_notas;
-
-	return melodia->num_notas;
-}
 
 //Funciones de entrada
 int compruebaPlayerStart(fsm_t* this){
@@ -90,7 +74,6 @@ int compruebaFinalMelodia(fsm_t* this){
 void inicializaPlayer(fsm_t* this){
 	TipoPlayer* new;
 	new= (TipoPlayer*) (this->user_data);
-	InicializaMelodia(new->melodia, "GOT", frecuenciaGOT, tiempoGOT, 518);
 	printf("\n Sistema Iniciado \n");
 	new->posicion_nota_actual = 0;
 	new->frecuencia_nota_actual = new->melodia->frecuencias[0];
