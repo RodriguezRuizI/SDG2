@@ -5,7 +5,6 @@
 #include "estados.h"
 #include "piMusicBox_3.h"
 #include "tmr.h"
-#include "tmr.c"
 
 extern fsm_trans_t transition_table[];
 extern int flags;
@@ -42,29 +41,34 @@ void delay_until (unsigned int next) {
 }
 
 void pulsaciones(){
-	int teclaPulsada;
+	TipoSistema sistema;
 	while (1) {
 		delay(10); // Wiring Pi function: pauses program execution for at least 10 ms
 
 		piLock (STD_IO_BUFFER_KEY);
 
 		if(kbhit()) { // Funcion que detecta si se ha producido pulsacion de tecla alguna
-			teclaPulsada = kbread(); // Funcion que devuelve la tecla pulsada
+			sistema.teclaPulsada = kbread(); // Funcion que devuelve la tecla pulsada
 
-			printf("\n[KBHIT][%c]\n", teclaPulsada);
+			printf("\n[KBHIT][%c]\n", sistema.teclaPulsada);
 
 				// Si estamos jugando...
-				switch(teclaPulsada) {
-					case '1':
+				switch(sistema.teclaPulsada) {
+					case 's':
 						piLock (FLAGS_KEY);
 						flags |= FLAG_PLAYER_START;
 						piUnlock (FLAGS_KEY);
 						break;
 
-					case '0':
+					case 't':
 						piLock (FLAGS_KEY);
 						flags |= FLAG_PLAYER_END;
 						piUnlock (FLAGS_KEY);
+						break;
+
+					case 'q':
+						printf("\n Quitamos la melodia \n");
+						exit(0);
 						break;
 
 					default:

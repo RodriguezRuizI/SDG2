@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <signal.h>
 #include <time.h>
+#include <wiringPi.h>
 
 tmr_t* tmr_new (notify_func_t isr){
     tmr_t* this = (tmr_t*) malloc (sizeof (tmr_t));

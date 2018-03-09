@@ -11,7 +11,7 @@
 #include "estados.h"
 #include "piMusicBox_3.h"
 #include "tmr.h"
-#include "tmr.c"
+
 #include <stdlib.h>
 
 volatile int flags=0;
