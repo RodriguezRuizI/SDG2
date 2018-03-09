@@ -32,13 +32,13 @@ int systemSetup (void) {
 	return 0;
 }
 
-void delay_until (unsigned int next) {
-	unsigned int now = millis();
-
-	if (next > now) {
-		delay (next - now);
-    }
-}
+//void delay_until (unsigned int next) {
+//	unsigned int now = millis();
+//
+//	if (next > now) {
+//		delay (next - now);
+//    }
+//}
 
 void pulsaciones(){
 	TipoSistema sistema;
@@ -83,18 +83,21 @@ void pulsaciones(){
 
 int main (){
 	tmr_t* aux_tmr = tmr_new(pulsaciones);
-	unsigned int next;
+	//unsigned int next;
 
 	fsm_t* aux_fsm = fsm_new(WAIT_START, transition_table, aux_tmr);
 	systemSetup();
 
 	fsm_setup(aux_fsm);
 
-	next = millis();
+	tmr_startms(aux_tmr, CLK_FMS);
+
+	//next = millis();
 	while (1) {
+		flags = 0x01;
 		fsm_fire (aux_fsm);
-		next += CLK_FMS;
-		delay_until (next);
+//		next += CLK_FMS;
+//		delay_until (next);
 	}
 	fsm_destroy (aux_fsm);
 	tmr_destroy(aux_tmr);

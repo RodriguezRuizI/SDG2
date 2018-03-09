@@ -14,7 +14,7 @@
 
 #include <stdlib.h>
 
-volatile int flags=0;
+int flags=0;
 
 
 //TABLA DE TRANSICIONES

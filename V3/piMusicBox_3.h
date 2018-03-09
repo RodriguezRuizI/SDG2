@@ -17,7 +17,7 @@
 #include "estados.h"
 
 #define GPIO_PIN 18
-#define CLK_FMS 10
+#define CLK_FMS 100
 
 extern int frecuenciaDespacito[];
 extern int tiempoDespacito[];
