@@ -69,7 +69,7 @@ void pulsaciones(){
 
 			printf("\n[KBHIT][%c]\n", sistema.teclaPulsada);
 
-				// Si estamos jugando...
+
 				switch(sistema.teclaPulsada) {
 					case 's':
 						piLock (FLAGS_KEY);
@@ -79,7 +79,7 @@ void pulsaciones(){
 
 					case 't':
 						piLock (FLAGS_KEY);
-						flags |= FLAG_PLAYER_END;
+						flags |= FLAG_PLAYER_STOP;
 						piUnlock (FLAGS_KEY);
 						break;
 
@@ -97,23 +97,32 @@ void pulsaciones(){
 	}
 }
 
+
+void callback(){
+	flags |= FLAG_NOTA_TIMEOUT;
+}
+
+
 int main (){
 	TipoSistema sistema;
 	TipoMelodia melodia;
-	sistema.player.melodia = &melodia;
-	tmr_t* aux_tmr = tmr_new(pulsaciones);
-	sistema.player.myTimer = (aux_tmr);
-
 	unsigned int next;
 
-	fsm_t* aux_fsm = fsm_new(WAIT_START, transition_table, &(sistema.player));
-	systemSetup();
-	InicializaMelodia(sistema.player.melodia, "GOT", frecuenciaGOT, tiempoGOT, 518);
-	fsm_setup(aux_fsm);
+	sistema.player.melodia = &melodia;
+	tmr_t* aux_tmr = tmr_new(pulsaciones);
+	sistema.player.myTimer = tmr_new(callback);
+	aux_tmr= tmr_new(pulsaciones);
 
+	systemSetup();
+
+	InicializaMelodia(sistema.player.melodia, "GOT", frecuenciaGOT, tiempoGOT, 4);
+
+	fsm_t* aux_fsm = fsm_new(WAIT_START, transition_table, &(sistema.player));
+
+	fsm_setup(aux_fsm);
+	tmr_startms(aux_tmr, 100);
 	next = millis();
 	while (1) {
-		flags = 0x01;
 		fsm_fire (aux_fsm);
 		next += CLK_FMS;
 		delay_until (next);

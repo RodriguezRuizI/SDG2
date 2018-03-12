@@ -34,6 +34,8 @@
 #define FLAG_PLAYER_END 0x03
 #define FLAG_NOTA_TIMEOUT 0x04
 
+
+
 //Funciones de entrada
 int compruebaPlayerStart(fsm_t* this);
 int compruebaPlayerStop(fsm_t* this);
