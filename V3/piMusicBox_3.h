@@ -87,7 +87,7 @@ typedef struct {
 
 } TipoSistema;
 
-void callback();
+
 void fsm_setup(fsm_t*);
 int systemSetup (void);
 void delay_until (unsigned int next);

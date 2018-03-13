@@ -16,6 +16,7 @@
 
 int flags=0;
 
+extern void callback(void);
 
 //TABLA DE TRANSICIONES
 fsm_trans_t transition_table[] = {
@@ -48,6 +49,7 @@ int compruebaPlayerStop(fsm_t* this){
 
 int compruebaNuevaNota(fsm_t* this){
 	int result = 0;
+	printf("\n MIERDA \n");
 		piLock (FLAGS_KEY);
 		result = (flags & FLAG_PLAYER_END);
 		piUnlock (FLAGS_KEY);
@@ -67,7 +69,7 @@ int compruebaFinalMelodia(fsm_t* this){
 	new= (TipoPlayer*) (this->user_data);
 	int result = 0;
 	piLock (FLAGS_KEY);
-	result = (flags & FLAG_PLAYER_END) && (new->posicion_nota_actual ==	new->melodia->num_notas-1);
+	result = (flags & FLAG_PLAYER_END);
 	piUnlock (FLAGS_KEY);
 	return result;
 }
@@ -79,16 +81,15 @@ void inicializaPlayer(fsm_t* this){
 	piLock (FLAGS_KEY);
 	printf("\n Sistema Iniciado \n");
 	fflush(stdout);
+	flags &= ~FLAG_PLAYER_START;
 	piUnlock (FLAGS_KEY);
 	new->posicion_nota_actual = 0;
 	new->frecuencia_nota_actual = new->melodia->frecuencias[0];
 	new->duracion_nota_actual = new->melodia->duraciones[0];
 	softToneWrite(GPIO_PIN, new->frecuencia_nota_actual);
+	new->myTimer = tmr_new(callback);
 	tmr_startms(new->myTimer, new->duracion_nota_actual);
 
-	if(flags & FLAG_PLAYER_STOP){
-		flags &= ~FLAG_PLAYER_STOP;
-	}
 }
 
 void stopPlayer(fsm_t* this){
@@ -96,15 +97,18 @@ void stopPlayer(fsm_t* this){
 	new= (TipoPlayer*) (this->user_data);
 	softToneWrite (GPIO_PIN, 0);
 	printf("\n Melodia detenida \n");
-	flags |= FLAG_PLAYER_STOP;
+	flags &= ~FLAG_PLAYER_STOP;
 	tmr_stop(new->myTimer);
 
 
 }
 void comienzaNuevaNota(fsm_t* this){
 	TipoPlayer* new;
+	printf("LLego a Comienza Nueva nota");
+	fflush(stdout);
 	new= (TipoPlayer*) (this->user_data);
 	softToneWrite(GPIO_PIN, new->frecuencia_nota_actual);
+	new->myTimer = tmr_new(callback);
 	tmr_startms(new->myTimer,new->duracion_nota_actual);
 
 }
@@ -121,12 +125,12 @@ void actualizaPlayer(fsm_t* this){
 	fflush(stdout);
 	piUnlock (FLAGS_KEY);
 
-	if((flags & FLAG_PLAYER_END) == 0){
-	new->posicion_nota_actual ++;
-	new->frecuencia_nota_actual = new->melodia->frecuencias[new->posicion_nota_actual];
-	new->duracion_nota_actual = new->melodia->duraciones[new->posicion_nota_actual];
+	if(new->posicion_nota_actual != new->melodia->num_notas-1){
+		new->posicion_nota_actual ++;
+		new->frecuencia_nota_actual = new->melodia->frecuencias[new->posicion_nota_actual];
+		new->duracion_nota_actual = new->melodia->duraciones[new->posicion_nota_actual];
 	}else{
-	flags |= FLAG_PLAYER_END;
+		flags |= FLAG_PLAYER_END;
 	}
 }
 
@@ -136,7 +140,6 @@ void finalMelodia(fsm_t* this){
 	flags &=  ~FLAG_PLAYER_START;
 	tmr_stop(new->myTimer);
 	printf("\n Melodia acabada \n");
-
 }
 
 
