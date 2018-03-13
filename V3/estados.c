@@ -16,7 +16,7 @@
 
 int flags=0;
 
-extern void callback(void);
+extern void callback();
 
 //TABLA DE TRANSICIONES
 fsm_trans_t transition_table[] = {
@@ -49,11 +49,10 @@ int compruebaPlayerStop(fsm_t* this){
 
 int compruebaNuevaNota(fsm_t* this){
 	int result = 0;
-	printf("\n MIERDA \n");
-		piLock (FLAGS_KEY);
-		result = (flags & FLAG_PLAYER_END);
-		piUnlock (FLAGS_KEY);
-		return !result;
+	piLock (FLAGS_KEY);
+	result = (flags & FLAG_PLAYER_END);
+	piUnlock (FLAGS_KEY);
+	return !result;
 }
 
 int compruebaNotaTimeout(fsm_t* this){
@@ -65,8 +64,6 @@ int compruebaNotaTimeout(fsm_t* this){
 }
 
 int compruebaFinalMelodia(fsm_t* this){
-	TipoPlayer* new;
-	new= (TipoPlayer*) (this->user_data);
 	int result = 0;
 	piLock (FLAGS_KEY);
 	result = (flags & FLAG_PLAYER_END);
@@ -81,7 +78,7 @@ void inicializaPlayer(fsm_t* this){
 	piLock (FLAGS_KEY);
 	printf("\n Sistema Iniciado \n");
 	fflush(stdout);
-	flags &= ~FLAG_PLAYER_START;
+	flags = 0;
 	piUnlock (FLAGS_KEY);
 	new->posicion_nota_actual = 0;
 	new->frecuencia_nota_actual = new->melodia->frecuencias[0];
@@ -97,15 +94,16 @@ void stopPlayer(fsm_t* this){
 	new= (TipoPlayer*) (this->user_data);
 	softToneWrite (GPIO_PIN, 0);
 	printf("\n Melodia detenida \n");
+	fflush(stdout);
+	piLock(FLAGS_KEY);
 	flags &= ~FLAG_PLAYER_STOP;
+	piUnlock(FLAGS_KEY);
 	tmr_stop(new->myTimer);
 
 
 }
 void comienzaNuevaNota(fsm_t* this){
 	TipoPlayer* new;
-	printf("LLego a Comienza Nueva nota");
-	fflush(stdout);
 	new= (TipoPlayer*) (this->user_data);
 	softToneWrite(GPIO_PIN, new->frecuencia_nota_actual);
 	new->myTimer = tmr_new(callback);
@@ -116,28 +114,32 @@ void comienzaNuevaNota(fsm_t* this){
 void actualizaPlayer(fsm_t* this){
 	TipoPlayer* new;
 	new= (TipoPlayer*) (this->user_data);
+	piLock(FLAGS_KEY);
 	flags &= ~FLAG_NOTA_TIMEOUT;
+	piUnlock(FLAGS_KEY);
 	tmr_stop(new->myTimer);
-	piLock (FLAGS_KEY);
 	printf("\n Nota actual: %i \n", new->posicion_nota_actual);
 	printf("\n Duración de la nota actual: %i \n", new->duracion_nota_actual);
 	printf("\n Frecuencia de la nota actual: %i \n", new->frecuencia_nota_actual);
 	fflush(stdout);
-	piUnlock (FLAGS_KEY);
 
 	if(new->posicion_nota_actual != new->melodia->num_notas-1){
 		new->posicion_nota_actual ++;
 		new->frecuencia_nota_actual = new->melodia->frecuencias[new->posicion_nota_actual];
 		new->duracion_nota_actual = new->melodia->duraciones[new->posicion_nota_actual];
 	}else{
+		piLock(FLAGS_KEY);
 		flags |= FLAG_PLAYER_END;
+		piUnlock(FLAGS_KEY);
 	}
 }
 
 void finalMelodia(fsm_t* this){
 	TipoPlayer* new;
 	new= (TipoPlayer*) (this->user_data);
+	piLock(FLAGS_KEY);
 	flags &=  ~FLAG_PLAYER_START;
+	piUnlock(FLAGS_KEY);
 	tmr_stop(new->myTimer);
 	printf("\n Melodia acabada \n");
 }

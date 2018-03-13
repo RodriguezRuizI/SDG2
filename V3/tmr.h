@@ -11,6 +11,9 @@
 #include <signal.h>
 #include <time.h>
 #include <wiringPi.h>
+/**
+ *
+ */
 
 struct tmr_t {
     timer_t timerid;

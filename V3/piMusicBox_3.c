@@ -61,7 +61,7 @@ void delay_until (unsigned int next) {
     }
 }
 
-void pulsaciones(){
+PI_THREAD(pulsacion){
 	TipoSistema sistema;
 	while (1) {
 		delay(10); // Wiring Pi function: pauses program execution for at least 10 ms
@@ -103,7 +103,6 @@ void pulsaciones(){
 
 
 void callback(){
-	printf("Funciono");
 	fflush(stdout);
 	flags |= FLAG_NOTA_TIMEOUT;
 }
@@ -113,19 +112,22 @@ int main (){
 	TipoSistema sistema;
 	TipoMelodia melodia;
 	unsigned int next;
-
+	int hebra;
 	sistema.player.melodia = &melodia;
-	tmr_t* aux_tmr = tmr_new(pulsaciones);
-	aux_tmr= tmr_new(pulsaciones);
+
+	hebra = piThreadCreate(pulsacion);
+	if(hebra != 0){
+		printf("No empieza la hebra");
+	}
 
 	systemSetup();
 
-	InicializaMelodia(sistema.player.melodia, "GOT", frecuenciaGOT, tiempoGOT, 50);
+	InicializaMelodia(sistema.player.melodia, "GOT", frecuenciaGOT, tiempoGOT, 10);
 
 	fsm_t* aux_fsm = fsm_new(WAIT_START, transition_table, &(sistema.player));
 
 	fsm_setup(aux_fsm);
-	tmr_startms(aux_tmr, 100);
+
 	next = millis();
 	while (1) {
 		fsm_fire (aux_fsm);
@@ -133,5 +135,4 @@ int main (){
 		delay_until (next);
 	}
 	fsm_destroy (aux_fsm);
-	tmr_destroy(aux_tmr);
 }
