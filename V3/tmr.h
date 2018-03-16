@@ -11,9 +11,8 @@
 #include <signal.h>
 #include <time.h>
 #include <wiringPi.h>
-/**
- *
- */
+
+//Struct que me permite crear un timer con un id y unos paramentros determinados
 
 struct tmr_t {
     timer_t timerid;
@@ -23,6 +22,9 @@ struct tmr_t {
 typedef struct tmr_t tmr_t;
 
 typedef void (*notify_func_t) (union sigval);
+
+
+//Declaración de funciones del timer
 
 tmr_t* tmr_new (notify_func_t isr);
 void tmr_init (tmr_t* this, notify_func_t isr);

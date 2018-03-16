@@ -8,11 +8,27 @@
 #include <stdlib.h>
 #include "fsm.h"
 
+/**
+ * Crea un nuevo tipo fsm al que le reserva un trozo de memoria de tamaño fsm
+ *
+ * @param state indica el estado actual
+ * @param tt pasa el puntero que nos da la información de estados
+ * @param user_data pasa los datos del usuario
+ */
 fsm_t* fsm_new (int state, fsm_trans_t* tt, void* user_data){
   fsm_t* this = (fsm_t*) malloc (sizeof (fsm_t));
   fsm_init (this, state, tt, user_data);
   return this;
 }
+
+/**
+ *Inicializa la máquina de estados con los parámetros de estado y transiciones
+ *
+ * @param fsm_t* this puntero que controla los estados y parámetros de la fsm
+ * @param state indica el estado actual
+ * @param tt pasa el puntero que nos da la información de estados
+ *@param user_data pasa los datos del usuario
+ */
 
 void fsm_init (fsm_t* this, int state, fsm_trans_t* tt, void* user_data){
   this->current_state = state;
@@ -20,10 +36,21 @@ void fsm_init (fsm_t* this, int state, fsm_trans_t* tt, void* user_data){
   this->user_data = user_data;
 }
 
+/**
+ * Libera el espacio ocupado por la máquina de estados
+ *
+ * @param fsm_t* this borra a donde apunta el puntero fsm y libera el espacio
+ */
+
 void fsm_destroy (fsm_t* this){
   free(this);
 }
-
+/**
+ * Provoca la transición de la máquina de estados de un estado a otro
+ * actualizando el estado actual y el destino según se cumplen las condiciones
+ *
+ * @param fsm_t* this puntero que controla los estados
+ */
 void fsm_fire (fsm_t* this){
   fsm_trans_t* t;
   for (t = this->tt; t->orig_state >= 0; ++t) {

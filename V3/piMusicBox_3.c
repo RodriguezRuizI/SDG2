@@ -1,18 +1,19 @@
 
-#include <wiringPi.h>
-#include <softTone.h>
-#include "string.h"
-#include "estados.h"
-#include "piMusicBox_3.h"
-#include "tmr.h"
-#include <stdio.h>
+#include <wiringPi.h> //usar funciones wiringPi
+#include <softTone.h> //para escribir un tono en un pin
+#include "string.h" //para poder copiar arryas de char
+#include "estados.h" //para usar las funciones y estructuras definidas
+#include "piMusicBox_3.h" //para usar las funciones y estructuras definidas
+#include "tmr.h" //para poder usar el timer
+#include <stdio.h> //para poder usar printf
 
-extern fsm_trans_t transition_table[];
-extern int flags;
+extern fsm_trans_t transition_table[]; //Llama a la tabla de transiciones en estados.c
+extern int flags; //Llama a la variable global flags en estados.c
 
+//Funcion privada de callback para inicializar flags
 void callback();
 
-
+//Arrays con los posibles parametros de las canciones a reproducir
 int frecuenciaDespacito[160] = {0,1175,1109,988,740,740,740,740,740,740,988,988,988,988,880,988,784,0,784,784,784,784,784,988,988,988,988,1109,1175,880,0,880,880,880,880,880,1175,1175,1175,1175,1318,1318,1109,0,1175,1109,988,740,740,740,740,740,740,988,988,988,988,880,988,784,0,784,784,784,784,784,988,988,988,988,1109,1175,880,0,880,880,880,880,880,1175,1175,1175,1175,1318,1318,1109,0,1480,1318,1480,1318,1480,1318,1480,1318,1480,1318,1480,1568,1568,1175,0,1175,1568,1568,1568,0,1568,1760,1568,1480,0,1480,1480,1480,1760,1568,1480,1318,659,659,659,659,659,659,659,659,554,587,1480,1318,1480,1318,1480,1318,1480,1318,1480,1318,1480,1568,1568,1175,0,1175,1568,1568,1568,1568,1760,1568,1480,0,1480,1480,1480,1760,1568,1480,1318};
 int tiempoDespacito[160] = {1200,600,600,300,300,150,150,150,150,150,150,150,150,300,150,300,343,112,150,150,150,150,150,150,150,150,300,150,300,300,150,150,150,150,150,150,150,150,150,300,150,300,800,300,600,600,300,300,150,150,150,150,150,150,150,150,300,150,300,343,112,150,150,150,150,150,150,150,150,300,150,300,300,150,150,150,150,150,150,150,150,150,300,150,300,450,1800,150,150,150,150,300,150,300,150,150,150,300,150,300,450,450,300,150,150,225,75,150,150,300,450,800,150,150,300,150,150,300,450,150,150,150,150,150,150,150,150,300,300,150,150,150,150,150,150,450,150,150,150,300,150,300,450,450,300,150,150,150,300,150,300,450,800,150,150,300,150,150,300,450};
 int frecuenciaGOT[518] = {1568,0,1046,0,1244,0,1397,0,1568,0,1046,0,1244,0,1397,0,1175,0,1397,0,932,0,1244,0,1175,0,1397,0,932,0,1244,0,1175,0,1046,0,831,0,698,0,523,0,349,0,784,0,523,0,523,0,587,0,622,0,698,0,784,0,523,0,622,0,698,0,784,0,523,0,622,0,698,0,587,0,698,0,466,0,622,0,587,0,698,0,466,0,622,0,587,0,523,0,523,0,587,0,622,0,698,0,784,0,523,0,622,0,698,0,784,0,523,0,622,0,698,0,587,0,698,0,466,0,622,0,587,0,698,0,466,0,622,0,587,0,523,0,0,1568,0,0,1046,0,0,1244,0,0,1397,0,0,1568,0,0,1046,0,0,1244,0,0,1397,0,0,1175,0,587,0,622,0,587,0,523,0,587,0,784,0,880,0,932,0,1046,0,1175,0,0,1397,0,0,932,0,0,1244,0,0,1175,0,0,1397,0,0,932,0,0,1244,0,0,1175,0,0,1046,0,0,1568,0,0,1046,0,0,1244,0,0,1397,0,0,1568,0,0,1046,0,0,1244,0,0,1397,0,0,1175,0,880,0,784,0,932,0,1244,0,0,1397,0,0,932,0,0,1175,0,0,1244,0,0,1175,0,0,932,0,0,1046,0,0,2093,0,622,0,831,0,932,0,1046,0,622,0,831,0,1046,0,0,1865,0,622,0,784,0,831,0,932,0,622,0,784,0,932,0,0,1661,0,523,0,698,0,784,0,831,0,523,0,698,0,831,0,0,1568,0,1046,0,1244,0,1397,0,1568,0,1046,0,1244,0,1397,0,0,0,1661,0,1046,0,1175,0,1244,0,831,0,1175,0,1244,0,0,0,0,2489,0,0,0,0,2794,0,0,0,0,3136,0,0,2093,0,622,0,831,0,932,0,1046,0,622,0,831,0,1046,0,0,1865,0,622,0,784,0,831,0,932,0,622,0,784,0,932,0,0,1661,0,523,0,698,0,784,0,831,0,523,0,698,0,831,0,0,1568,0,1046,0,1244,0,1397,0,1568,0,1046,0,1244,0,1397,0,0,0,1661,0,1046,0,1175,0,1244,0,831,0,1175,0,1244,0,0,0,0,2489,0,1397,0,0,0,2350,0,0,0,2489,0,0,0,2350,0,0,0,0,2093,0,392,0,415,0,466,0,523,0,392,0,415,0,466,0,523,0,392,0,415,0,466,0,2093,0,1568,0,1661,0,1865,0,2093,0,1568,0,1661,0,1865,0,2093,0,1568,0,1661,0,1865};
@@ -21,6 +22,16 @@ int frecuenciaTetris[55] = {1319,988,1047,1175,1047,988,880,880,1047,1319,1175,1
 int tiempoTetris[55] = {450,225,225,450,225,225,450,225,225,450,225,225,450,225,225,450,450,450,450,450,675,450,225,450,225,225,675,225,450,225,225,450,225,225,450,450,450,450,450,450,900,900,900,900,900,900,1800,900,900,900,900,450,450,900,1800};
 int frecuenciaStarwars[59] = {523,0,523,0,523,0,698,0,1046,0,0,880,0,784,0,1397,0,523,0,1760,0,0,880,0,784,0,1397,0,523,0,1760,0,0,880,0,784,0,1397,0,523,0,1760,0,0,880,0,1760,0,0,784,0,523,0,0,523,0,0,523,0};
 int tiempoStarwars[59] = {134,134,134,134,134,134,536,134,536,134,134,134,134,134,134,536,134,402,134,134,429,357,134,134,134,134,536,134,402,134,134,429,357,134,134,134,134,536,134,402,134,134,429,357,134,134,134,429,357,1071,268,67,67,268,67,67,67,67,67};
+
+/**
+ *Método que inicializa una melodía de la cual pasaremos sus parámetros
+ *
+ *@param melodia pasa la melodía a reproducir
+ *@param nombre pasa el nombre de la melodia
+ *@param array_frecuencias pasa el array de frecuencias de la melodia
+ *@param array_duraciones pasa el array de duración de las notas
+ *@param num_notas pasa el numero total de notas de la melodía pasada
+ */
 
 int InicializaMelodia (TipoMelodia *melodia, char *nombre, int *array_frecuencias, int *array_duraciones, int num_notas) {
 	int i=0;
@@ -39,6 +50,12 @@ int InicializaMelodia (TipoMelodia *melodia, char *nombre, int *array_frecuencia
 	return melodia->num_notas;
 }
 
+/**
+ * Función que pone a cero la variable global flags al inicio de nuestra máquina de estados.
+ *
+ * fsm_t music_fsm pasa como parámetro el puntero que apunta a los parámetros de la música
+ */
+
 void fsm_setup(fsm_t* music_fsm) {
 	piLock (FLAGS_KEY);
 	flags = 0;
@@ -47,12 +64,20 @@ void fsm_setup(fsm_t* music_fsm) {
 	piUnlock (STD_IO_BUFFER_KEY);
 }
 
+/**
+ * Inicia las funciones de wiringPi que permiten sacar una señal
+ * por los pines de la raspi
+ */
 int systemSetup (void) {
 	wiringPiSetupGpio();
 	softToneCreate(GPIO_PIN);
 	return 0;
 }
 
+/**
+ * Función que le hace un delay al sistema
+ * @param unsigned int next que será la variable encargada de asignar el tiempo de delay
+ */
 void delay_until (unsigned int next) {
 	unsigned int now = millis();
 
@@ -60,6 +85,11 @@ void delay_until (unsigned int next) {
 		delay (next - now);
     }
 }
+
+/**
+ * Hebra que controla con un timer las pulsaciones que tiene que ir haciendo el sistema
+ * de formaa autónoma y a partir de una máquina de estados
+ */
 
 PI_THREAD(pulsacion){
 	TipoSistema sistema;
@@ -75,24 +105,24 @@ PI_THREAD(pulsacion){
 
 
 				switch(sistema.teclaPulsada) {
-					case 's':
+					case 's': //si se pulsa s se activa el flag de START
 						piLock (FLAGS_KEY);
 						flags |= FLAG_PLAYER_START;
 						piUnlock (FLAGS_KEY);
 						break;
 
-					case 't':
+					case 't': //Si se pulsa t se activa el flag de STOP
 						piLock (FLAGS_KEY);
 						flags |= FLAG_PLAYER_STOP;
 						piUnlock (FLAGS_KEY);
 						break;
 
-					case 'q':
+					case 'q': //Si se pulsa q se quita el programa
 						printf("\n Quitamos la melodia \n");
 						exit(0);
 						break;
 
-					default:
+					default: //Si se pulsa cualquier tecla diferente de las anteriores te da un mensaje de tecla inválida
 						printf("INVALID KEY!!!\n");
 						break;
 				}
@@ -101,38 +131,45 @@ PI_THREAD(pulsacion){
 	}
 }
 
+/**
+ *Función de callback que activa el flag de timeout cuando esto es requerido
+ */
 
 void callback(){
+	piLock (FLAGS_KEY);
 	fflush(stdout);
 	flags |= FLAG_NOTA_TIMEOUT;
+	piUnlock (FLAGS_KEY);
 }
 
 
 int main (){
-	TipoSistema sistema;
-	TipoMelodia melodia;
-	unsigned int next;
-	int hebra;
-	sistema.player.melodia = &melodia;
+	TipoSistema sistema; // Creamos una variable tipo sistema
+	TipoMelodia melodia; // Creamos una variable tipo melodia
+	unsigned int next; // entero sin signo para el delay
+	int hebra; //entero para crear la hebra del teclado
+	sistema.player.melodia = &melodia; //asignamos el puntero melodia
 
-	hebra = piThreadCreate(pulsacion);
-	if(hebra != 0){
+	hebra = piThreadCreate(pulsacion); //Crea la hebra que llama a la interrupcion teclado
+	if(hebra != 0){ //Si no hay una primera pulsación la hebra no inicia
 		printf("No empieza la hebra");
 	}
-
+	//Iniciamos la función de wiringPi que permite sacar la onda por el PIN 18
 	systemSetup();
 
+	//Inicializamos una melodía para reproducirla
 	InicializaMelodia(sistema.player.melodia, "GOT", frecuenciaGOT, tiempoGOT, 10);
 
+	//Inicializa los parámetros que hay que pasarle a la máquina de estados para que funcione
 	fsm_t* aux_fsm = fsm_new(WAIT_START, transition_table, &(sistema.player));
-
+	//Pone la variable global flags a cero
 	fsm_setup(aux_fsm);
-
+	//asocia al entero sin signo un tiempo en milisegundos
 	next = millis();
 	while (1) {
-		fsm_fire (aux_fsm);
-		next += CLK_FMS;
-		delay_until (next);
+		fsm_fire (aux_fsm); //llama a la función que controla la transición de estados
+		next += CLK_FMS; //incrementa el tiempo
+		delay_until (next); // hace un delay
 	}
-	fsm_destroy (aux_fsm);
+	fsm_destroy (aux_fsm); //liberamos el espacio ocupado por la máquina de estados
 }
