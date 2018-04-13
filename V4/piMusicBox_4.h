@@ -15,6 +15,7 @@
 
 #define GPIO_PIN 18 // Pin de salida de la raspi
 #define CLK_FMS 100 //Reloj usado en el delay
+#define PIN_ENT 5
 
 extern int frecuenciaDespacito[];
 extern int tiempoDespacito[];

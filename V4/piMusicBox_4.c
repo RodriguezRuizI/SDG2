@@ -13,7 +13,8 @@ extern int flags; //Llama a la variable global flags en estados.c
 
 //Funcion privada de callback para inicializar flags
 void callback();
-
+void up_ISR();
+void down_ISR();
 //Arrays con los posibles parametros de las canciones a reproducir
 int frecuenciaDespacito[160] = {0,1175,1109,988,740,740,740,740,740,740,988,988,988,988,880,988,784,0,784,784,784,784,784,988,988,988,988,1109,1175,880,0,880,880,880,880,880,1175,1175,1175,1175,1318,1318,1109,0,1175,1109,988,740,740,740,740,740,740,988,988,988,988,880,988,784,0,784,784,784,784,784,988,988,988,988,1109,1175,880,0,880,880,880,880,880,1175,1175,1175,1175,1318,1318,1109,0,1480,1318,1480,1318,1480,1318,1480,1318,1480,1318,1480,1568,1568,1175,0,1175,1568,1568,1568,0,1568,1760,1568,1480,0,1480,1480,1480,1760,1568,1480,1318,659,659,659,659,659,659,659,659,554,587,1480,1318,1480,1318,1480,1318,1480,1318,1480,1318,1480,1568,1568,1175,0,1175,1568,1568,1568,1568,1760,1568,1480,0,1480,1480,1480,1760,1568,1480,1318};
 int tiempoDespacito[160] = {1200,600,600,300,300,150,150,150,150,150,150,150,150,300,150,300,343,112,150,150,150,150,150,150,150,150,300,150,300,300,150,150,150,150,150,150,150,150,150,300,150,300,800,300,600,600,300,300,150,150,150,150,150,150,150,150,300,150,300,343,112,150,150,150,150,150,150,150,150,300,150,300,300,150,150,150,150,150,150,150,150,150,300,150,300,450,1800,150,150,150,150,300,150,300,150,150,150,300,150,300,450,450,300,150,150,225,75,150,150,300,450,800,150,150,300,150,150,300,450,150,150,150,150,150,150,150,150,300,300,150,150,150,150,150,150,450,150,150,150,300,150,300,450,450,300,150,150,150,300,150,300,450,800,150,150,300,150,150,300,450};
@@ -65,13 +66,25 @@ void fsm_setup(fsm_t* music_fsm) {
 	piUnlock (STD_IO_BUFFER_KEY);
 }
 
+void up_ISR(){
+	flags |= FLAG_PLAYER_START;
+}
+void down_ISR(){
+	flags |= FLAG_PLAYER_STOP;
+}
+
 /**
  * Inicia las funciones de wiringPi que permiten sacar una señal
  * por los pines de la raspi
  */
 int systemSetup (void) {
 	wiringPiSetupGpio();
+	pinMode (GPIO_PIN, OUTPUT);
+	pinMode (PIN_ENT, INPUT);
 	softToneCreate(GPIO_PIN);
+	pullUpDnControl (PIN_ENT, PUD_DOWN) ;
+	wiringPiISR (PIN_ENT, INT_EDGE_RISING, up_ISR);
+	wiringPiISR (PIN_ENT, INT_EDGE_FALLING, down_ISR);
 	return 0;
 }
 
@@ -85,51 +98,6 @@ void delay_until (unsigned int next) {
 	if (next > now) {
 		delay (next - now);
     }
-}
-
-/**
- * Hebra que controla con un timer las pulsaciones que tiene que ir haciendo el sistema
- * de formaa autónoma y a partir de una máquina de estados
- */
-
-PI_THREAD(pulsacion){
-	TipoSistema sistema;
-	while (1) {
-		delay(10); // Wiring Pi function: pauses program execution for at least 10 ms
-
-		piLock (STD_IO_BUFFER_KEY);
-
-		if(kbhit()) { // Funcion que detecta si se ha producido pulsacion de tecla alguna
-			sistema.teclaPulsada = kbread(); // Funcion que devuelve la tecla pulsada
-
-			printf("\n[KBHIT][%c]\n", sistema.teclaPulsada);
-
-
-				switch(sistema.teclaPulsada) {
-					case 's': //si se pulsa s se activa el flag de START
-						piLock (FLAGS_KEY);
-						flags |= FLAG_PLAYER_START;
-						piUnlock (FLAGS_KEY);
-						break;
-
-					case 't': //Si se pulsa t se activa el flag de STOP
-						piLock (FLAGS_KEY);
-						flags |= FLAG_PLAYER_STOP;
-						piUnlock (FLAGS_KEY);
-						break;
-
-					case 'q': //Si se pulsa q se quita el programa
-						printf("\n Quitamos la melodia \n");
-						exit(0);
-						break;
-
-					default: //Si se pulsa cualquier tecla diferente de las anteriores te da un mensaje de tecla inválida
-						printf("INVALID KEY!!!\n");
-						break;
-				}
-		}
-		piUnlock(STD_IO_BUFFER_KEY);
-	}
 }
 
 /**
@@ -148,13 +116,9 @@ int main (){
 	TipoSistema sistema; // Creamos una variable tipo sistema
 	TipoMelodia melodia; // Creamos una variable tipo melodia
 	unsigned int next; // entero sin signo para el delay
-	int hebra; //entero para crear la hebra del teclado
 	sistema.player.melodia = &melodia; //asignamos el puntero melodia
 
-	hebra = piThreadCreate(pulsacion); //Crea la hebra que llama a la interrupcion teclado
-	if(hebra != 0){ //Si no hay una primera pulsación la hebra no inicia
-		printf("No empieza la hebra");
-	}
+
 	//Iniciamos la función de wiringPi que permite sacar la onda por el PIN 18
 	systemSetup();
 

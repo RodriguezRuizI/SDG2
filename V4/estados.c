@@ -238,6 +238,7 @@ void finalMelodia(fsm_t* this){
 	new= (TipoPlayer*) (this->user_data);
 	piLock(FLAGS_KEY);
 	flags &=  ~FLAG_PLAYER_START; //Desactivamos el FLAG START
+	softToneWrite(GPIO_PIN, 0);
 	piUnlock(FLAGS_KEY);
 	tmr_stop(new->myTimer); //Paro el timer
 	printf("\n Melodia acabada \n"); //Lanzamos un mensaje melodía acabada

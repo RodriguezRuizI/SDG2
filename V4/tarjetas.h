@@ -31,19 +31,19 @@
 
 
 //Funciones de entrada
-compruebaComienzo(fsm_t* this);
-tarjetaNoDisponible(fsm_t* this);
-tarjetaDisponible(fsm_t* this);
-tarjetaNoValida(fsm_t* this);
-tarjetaValida(fsm_t* this);
-compruebaFinalReproduccion(fsm_t* this);
+int compruebaComienzo(fsm_t* this);
+int tarjetaNoDisponible(fsm_t* this);
+int tarjetaDisponible(fsm_t* this);
+int tarjetaNoValida(fsm_t* this);
+int tarjetaValida(fsm_t* this);
+int compruebaFinalReproduccion(fsm_t* this);
 
 //Funciones de salida
-comienzaSistema(fsm_t* this);
-esperoTarjeta(fsm_t* this);
-leerTarjeta(fsm_t* this);
-descartaTarjeta(fsm_t* this);
-comienzaReproduccion(fsm_t* this);
-cancelaReproduccion(fsm_t* this);
-comprueboTarjeta(fsm_t* this);
-finalizaReproduccion(fsm_t* this);
+void comienzaSistema(fsm_t* this);
+void esperoTarjeta(fsm_t* this);
+void leerTarjeta(fsm_t* this);
+void descartaTarjeta(fsm_t* this);
+void comienzaReproduccion(fsm_t* this);
+void cancelaReproduccion(fsm_t* this);
+void comprueboTarjeta(fsm_t* this);
+void finalizaReproduccion(fsm_t* this);

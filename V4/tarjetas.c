@@ -13,7 +13,7 @@
 #include <stdio.h> //para poder usar printf
 #include <stdlib.h> //para poder usar null
 #include "piMusicBox_4.h" //para usar las funciones y estructuras definidas
-
+#include "tarjetas.h"
 //TABLA DE TRANSICIONES DEL AUTÓMATA
 fsm_trans_t transition_table_tarjeta[] = {
 		{WAIT_START2, compruebaComienzo,WAIT_CARD,comienzaSistema},
@@ -28,47 +28,47 @@ fsm_trans_t transition_table_tarjeta[] = {
 };
 
 //Funciones de entrada
-compruebaComienzo(fsm_t* this){
-
+int compruebaComienzo(fsm_t* this){
+ return 0;
 }
-tarjetaNoDisponible(fsm_t* this){
-
+int tarjetaNoDisponible(fsm_t* this){
+return 0;
 }
-tarjetaDisponible(fsm_t* this){
-
+int tarjetaDisponible(fsm_t* this){
+	return 0;
 }
-tarjetaNoValida(fsm_t* this){
-
+int tarjetaNoValida(fsm_t* this){
+	return 0;
 }
-tarjetaValida(fsm_t* this){
-
+int tarjetaValida(fsm_t* this){
+	return 0;
 }
-compruebaFinalReproduccion(fsm_t* this){
-
+int compruebaFinalReproduccion(fsm_t* this){
+	return 0;
 }
 
 //Funciones de salida
-comienzaSistema(fsm_t* this){
+void comienzaSistema(fsm_t* this){
 
 }
-esperoTarjeta(fsm_t* this){
+void esperoTarjeta(fsm_t* this){
 
 }
-leerTarjeta(fsm_t* this){
+void leerTarjeta(fsm_t* this){
 
 }
-descartaTarjeta(fsm_t* this){
+void descartaTarjeta(fsm_t* this){
 
 }
-comienzaReproduccion(fsm_t* this){
+void comienzaReproduccion(fsm_t* this){
 
 }
-cancelaReproduccion(fsm_t* this){
+void cancelaReproduccion(fsm_t* this){
 
 }
-comprueboTarjeta(fsm_t* this){
+void comprueboTarjeta(fsm_t* this){
 
 }
-finalizaReproduccion(fsm_t* this){
+void finalizaReproduccion(fsm_t* this){
 
 }
