@@ -67,10 +67,10 @@ void fsm_setup(fsm_t* music_fsm) {
 }
 
 void up_ISR(){
-	flags |= FLAG_PLAYER_START;
+	flags |= FLAG_PLAYER_STOP;
 }
 void down_ISR(){
-	flags |= FLAG_PLAYER_STOP;
+	flags |= FLAG_PLAYER_START;
 }
 
 /**
@@ -123,7 +123,7 @@ int main (){
 	systemSetup();
 
 	//Inicializamos una melodía para reproducirla
-	InicializaMelodia(sistema.player.melodia, "GOT", frecuenciaGOT, tiempoGOT, 518);
+	InicializaMelodia(sistema.player.melodia, "GOT", frecuenciaGOT, tiempoGOT, 20);
 
 	//Inicializa los parámetros que hay que pasarle a la máquina de estados para que funcione
 	fsm_t* aux_fsm = fsm_new(WAIT_START, transition_table, &(sistema.player));

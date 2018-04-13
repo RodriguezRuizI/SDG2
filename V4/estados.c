@@ -18,6 +18,8 @@ int flags=0;
 
 //Llamada a la función de callback implementada en otra clase
 extern void callback();
+extern void up_ISR();
+extern void down_ISR();
 
 //TABLA DE TRANSICIONES DEL AUTÓMATA
 fsm_trans_t transition_table[] = {
@@ -43,6 +45,10 @@ fsm_trans_t transition_table[] = {
 
 int compruebaPlayerStart(fsm_t* this){
 	int result = 0;
+	int pin =digitalRead(PIN_ENT);
+	if(pin == 0){
+		down_ISR();
+	}
 	piLock (FLAGS_KEY);
 	result = (flags & FLAG_PLAYER_START);
 	piUnlock (FLAGS_KEY);
@@ -61,6 +67,10 @@ int compruebaPlayerStart(fsm_t* this){
 
 int compruebaPlayerStop(fsm_t* this){
 	int result = 0;
+	int pin =digitalRead(PIN_ENT);
+	if(pin == 1){
+		up_ISR();
+	}
 	piLock (FLAGS_KEY);
 	result = (flags & FLAG_PLAYER_STOP);
 	piUnlock (FLAGS_KEY);
