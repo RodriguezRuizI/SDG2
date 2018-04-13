@@ -10,11 +10,10 @@
 
 #include <stdio.h> //para usar printf
 #include <stdlib.h> //para poder usar null
-#include "kbhit.h" // Para poder detectar teclas pulsadas sin bloqueo y leer las teclas pulsadas
 #include "estados.h" //para usar las funciones y estructuras definidas
 
 #define GPIO_PIN 18 // Pin de salida de la raspi
-#define CLK_FMS 100 //Reloj usado en el delay
+#define CLK_FMS 1 //Reloj usado en el delay
 #define PIN_ENT 5
 #define PLAY 6
 #define PAUSE 12

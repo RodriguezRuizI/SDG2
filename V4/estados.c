@@ -154,6 +154,7 @@ void inicializaPlayer(fsm_t* this){
 	new->frecuencia_nota_actual = new->melodia->frecuencias[0];
 	new->duracion_nota_actual = new->melodia->duraciones[0];
 	softToneWrite(GPIO_PIN, new->frecuencia_nota_actual);
+	free(new->myTimer);
 	new->myTimer = tmr_new(callback);
 	tmr_startms(new->myTimer, new->duracion_nota_actual);
 
@@ -196,6 +197,7 @@ void comienzaNuevaNota(fsm_t* this){
 	TipoPlayer* new;
 	new= (TipoPlayer*) (this->user_data);
 	softToneWrite(GPIO_PIN, new->frecuencia_nota_actual);
+	free(new->myTimer);
 	new->myTimer = tmr_new(callback);
 	tmr_startms(new->myTimer,new->duracion_nota_actual);
 

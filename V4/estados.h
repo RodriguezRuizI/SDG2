@@ -19,7 +19,6 @@
 #include <sys/time.h>
 #include <wiringPi.h>
 #include <softTone.h>
-#include "kbhit.h" // para poder detectar teclas pulsadas sin bloqueo y leer las teclas pulsadas
 #include "piMusicBox_4.h" //para usar las funciones y estructuras definidas
 #include "fsm.h" // para poder crear y ejecutar la máquina de estados
 #include "tmr.h" // para poder usar el timer

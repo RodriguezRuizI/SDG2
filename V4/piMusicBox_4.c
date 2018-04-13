@@ -123,7 +123,7 @@ int main (){
 	systemSetup();
 
 	//Inicializamos una melodía para reproducirla
-	InicializaMelodia(sistema.player.melodia, "GOT", frecuenciaGOT, tiempoGOT, 20);
+	InicializaMelodia(sistema.player.melodia, "DESPACITO", frecuenciaDespacito, tiempoDespacito, 160);
 
 	//Inicializa los parámetros que hay que pasarle a la máquina de estados para que funcione
 	fsm_t* aux_fsm = fsm_new(WAIT_START, transition_table, &(sistema.player));
